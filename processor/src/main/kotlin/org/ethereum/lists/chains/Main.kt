@@ -82,7 +82,12 @@ private fun createOutputFiles() {
         .forEach { iconLocation ->
 
             val jsonData = Klaxon().parseJsonArray(iconLocation.reader())
-            val iconName = iconLocation.toString().replace("../_data/icons/", "").replace(".json", "")
+
+            if (iconLocation.extension != "json") {
+                error("Icon must be json " + iconLocation)
+            }
+
+            val iconName = iconLocation.toString().removePrefix("../_data/icons/").removeSuffix(".json")
 
             val iconJson = JsonObject()
             iconJson["name"] = iconName
@@ -103,24 +108,6 @@ private fun createOutputFiles() {
     File(buildPath, "chain_icons.json").writeText(chainIconJSONArray.toJsonString(prettyPrint = true))
 
     File(buildPath, "shortNameMapping.json").writeText(shortNameMapping.toJsonString(prettyPrint = true))
-    File(buildPath, "index.html").writeText(
-        """
-            <!DOCTYPE HTML>
-            <html lang="en-US">
-                <head>
-                    <meta charset="UTF-8">
-                    <meta http-equiv="refresh" content="0; url=https://chainlist.org">
-                    <script type="text/javascript">
-                        window.location.href = "https://chainlist.org"
-                    </script>
-                    <title>Page Redirection</title>
-                </head>
-                <body>
-                    If you are not redirected automatically, follow this <a href='https://chainlist.org'>link to chainlist.org</a>.
-                </body>
-            </html>
-    """.trimIndent()
-    )
 
     File(buildPath, ".nojekyll").createNewFile()
     File(buildPath, "CNAME").writeText("chainid.network")
